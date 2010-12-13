@@ -1,5 +1,5 @@
 h2. mountainprogramming.com
 
-A git-based blog at http://mountainprogramming.com
+A git-based blog at "http://mountainprogramming.com":http://mountainprogramming.com
 
 Also, take a look at "toto":https://github.com/cloudhead/toto, <code>the 10 second blog-engine for hackers</code>
