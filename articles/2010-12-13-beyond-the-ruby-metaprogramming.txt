@@ -1,0 +1,17 @@
+--- 
+title: Beyond the Ruby metaprogramming
+date: 14/12/2010
+
+Here is a collection of very cool Ruby libs which extend Ruby’s metaprogramming and object model operation very much:
+
+[object2module](https://github.com/banister/object2module) — Convert Classes and Objects to Modules so they can be extended/included
+
+[remix](https://github.com/banister/remix) — A library to give you total control over class and module ancestor chains
+
+[prepend](https://github.com/banister/prepend) — Prepends modules in front of a class; so method lookup starts with the module
+
+[local\_eval](https://github.com/banister/local_eval) — Object#instance__eval without changing self 
+
+[include\_complete](https://github.com/banister/include_complete) — Use Module#include__complete to bring in singleton classes from modules
+
+[mixico](https://github.com/rkh/mixico) -- Disable and re-enable mixins
