@@ -1,0 +1,66 @@
+--- 
+title: git-sh and git-wtf together
+date: 13/12/2010
+
+<a href="http://github.com/rtomayko/git-sh">git-sh</a> is awesome. As well as <a href="http://github.com/DanielVartanov/git-wtf/blob/c22bb4f3ef50a80081240bb1aca3592910952e02/git-wtf">git-wtf</a>. I bet most people are not aware of git-wtf, but they certainly should, cause it is an extremely convenient and useful tool when you are working with several branches and/or remotes. A little example of git-wtf output:
+
+<div style="background-color: black; color: #999999; font-family: &quot;Courier New&quot;,Courier,monospace;">
+Local branch: heads/master
+[x] in sync with remote
+
+Remote branch: origin/master (git@github.com:account/project.git)
+[x] in sync with local
+
+Feature branches:
+[x] ticket_827 is merged in
+[ ] ticket_831 is NOT merged in (1 commit ahead; 18 commits behind)
+- [dependencies] Depend on library X, version Y [bfda321]</div>
+
+(see <a href="http://github.com/michaelklishin/git-wtf">http://github.com/michaelklishin/git-wtf</a>)
+
+<b><span style="font-size: large;">The problem</span></b>
+
+If you are using git-sh, you have to type
+
+<div style="font-family: &quot;Trebuchet MS&quot;,sans-serif;">
+<b><span style="background-color: orange;">branch</span><span style="background-color: black; color: #cccccc;">!</span><span style="background-color: black; color: #3d85c6;">repo</span><span style="background-color: black; color: #cccccc;"><span style="color: #999999;">&gt; command git-wtf</span>&nbsp;</span></b></div>
+
+which is long and annoying.
+
+<span style="font-size: large;"><b>The solution</b></span>
+
+This post shows how to call <i>git-wtf</i>&nbsp; just by typing
+
+<b><span style="background-color: orange; font-family: 'Trebuchet MS', sans-serif;">branch</span><span style="background-color: black; color: #cccccc; font-family: 'Trebuchet MS', sans-serif;">!</span><span style="background-color: black; color: #3d85c6; font-family: 'Trebuchet MS', sans-serif;">repo</span><span style="background-color: black; color: #999999; font-family: 'Trebuchet MS', sans-serif;">&gt; wtf&nbsp;</span> </b>
+
+in git-sh console.
+
+Clone the fork of git-wtf, which contains a pretty Makefile (I hope it will be merged into main repo soon):
+
+<div style="background-color: black; color: #999999; font-family: &quot;Trebuchet MS&quot;,sans-serif;">
+<b><span style="color: #3d85c6;">$</span> <span style="color: #999999;">git clone http://github.com/DanielVartanov/git-wtf&nbsp;</span></b></div>
+
+Run <i>make</i> to configure correspondent aliases for git and git-sh:
+
+<div style="background-color: black; color: #999999; font-family: &quot;Trebuchet MS&quot;,sans-serif;">
+<b><span style="color: #3d85c6;">$</span> make
+git config --global alias.wtf '!git-wtf'
+echo -e "\n# git-wtf\ngitalias wtf='git wtf'" &gt;&gt; ~/.gitshrc&nbsp;</b></div>
+
+Run <i>make install</i> if git-wtf script is not in PATH-directory already:
+
+<div style="background-color: black; color: #999999; font-family: &quot;Trebuchet MS&quot;,sans-serif;">
+<b><span style="color: #3d85c6;">$</span> sudo make install
+install git-wtf /usr/local/bin&nbsp;</b></div>
+
+You can simply run <i>wtf</i> command in git-sh console now:
+<div class="separator" style="clear: both; text-align: center;">
+<a href="http://3.bp.blogspot.com/_PDm03OrXVe0/SsBmWGUIfEI/AAAAAAAAAmc/BRv0-Kd68PE/s1600-h/git-sh-wtf.png" imageanchor="1" style="clear: left; float: left; margin-bottom: 1em; margin-right: 1em;"><img border="0" src="http://3.bp.blogspot.com/_PDm03OrXVe0/SsBmWGUIfEI/AAAAAAAAAmc/BRv0-Kd68PE/s400/git-sh-wtf.png" /></a></div>
+
+
+
+
+
+
+
+Enjoy :-)
