@@ -1,0 +1,79 @@
+--- 
+title: A trap of delegation
+date: 06/04/2011
+
+
+Beware of proxy objects. Here is an edge case I fell into and want to warn you.
+
+Let's consider an ultimate proxy class:
+
+<pre><span class="k">class</span> <span class="nc">UltimateProxy</span> <span class="o"><</span> <span class="no">BasicObject</span>
+ <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">object</span><span class="p">)</span>
+   <span class="n">delegate_everything_to</span><span class="p">(</span><span class="n">object</span><span class="p">)</span>
+ <span class="k">end</span>
+
+ <span class="kp">private</span>
+
+ <span class="k">def</span> <span class="nf">delegate_everything_to</span><span class="p">(</span><span class="n">object</span><span class="p">)</span>
+   <span class="n">metaclass</span> <span class="o">=</span> <span class="k">class</span> <span class="o"><<</span> <span class="nb">self</span><span class="p">;</span> <span class="nb">self</span><span class="p">;</span> <span class="k">end</span>
+   <span class="n">metaclass</span><span class="o">.</span><span class="n">__send__</span><span class="p">(</span><span class="ss">:define_method</span><span class="p">,</span> <span class="ss">:method_missing</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">message</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="o">|</span>
+     <span class="n">object</span><span class="o">.</span><span class="n">__send__</span> <span class="n">message</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span>
+   <span class="k">end</span>
+ <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+
+It delegates virtually everything to a given object. And one would
+think (yeahl, including me) that we can use this proxy object
+everywhere instead of the genuine object.
+
+
+Counterexample
+--------------
+
+That's not true and here is the trap:
+
+<pre><span class="k">class</span> <span class="nc">Genuine</span><span class="p">;</span> <span class="k">end</span><span class="p">;</span>
+
+<span class="k">def</span> <span class="nf">access_granted?</span><span class="p">(</span><span class="n">object</span><span class="p">)</span>
+ <span class="k">case</span> <span class="n">object</span>
+ <span class="k">when</span> <span class="no">Genuine</span>
+   <span class="kp">true</span>
+ <span class="k">else</span>
+   <span class="kp">false</span>
+ <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+
+A genuine object will pass this check:
+
+<pre><span class="n">genuine</span> <span class="o">=</span> <span class="no">Genuine</span><span class="o">.</span><span class="n">new</span>
+<span class="n">access_granted?</span><span class="p">(</span><span class="n">genuine</span><span class="p">)</span> <span class="c1"># => true</span>
+</pre>
+
+But proxy object will _not_:
+
+<pre><span class="n">proxy</span> <span class="o">=</span> <span class="no">UltimateProxy</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">genuine</span><span class="p">)</span>
+<span class="n">proxy</span><span class="o">.</span><span class="n">class</span>            <span class="c1"># => Genuine   (despite this looks good...)</span>
+<span class="n">access_granted?</span><span class="p">(</span><span class="n">proxy</span><span class="p">)</span> <span class="c1"># => false  (... we fail)</span>
+</pre>
+
+Why?
+====
+
+Because case internally uses #=== to determine if a given object
+belongs to a certain "when-block". Look:
+
+<pre><span class="no">Genuine</span> <span class="o">===</span> <span class="n">genuine</span> <span class="c1"># => true</span>
+<span class="no">Genuine</span> <span class="o">===</span> <span class="n">proxy</span>   <span class="c1"># => false</span>
+</pre>
+
+It's easier to track down in Rubinius:
+
+`Object::kind_of_p` at [vm/builtin/object.cpp:428](https://github.com/evanphx/rubinius/blob/master/vm/builtin/object.cpp#L428)  
+`Module::case_compare` at [vm/builtin/module.cpp:66](https://github.com/evanphx/rubinius/blob/master/vm/builtin/module.cpp#L66)  
+...  
+`Module#===` at [kernel/common/module.rb:572](https://github.com/evanphx/rubinius/blob/master/kernel/common/module.rb#L572)
+
+You see? Not a single chance to have an influence on this process from
+a Ruby level.
